@@ -46,24 +46,19 @@ namespace Pipelines.Sockets.Unofficial
         /// The number of workers associated with this pool
         /// </summary>
         public int WorkerCount { get; }
-
         private int UseThreadPoolQueueLength { get; }
-
         private ThreadPriority Priority { get; }
-
         private string Name { get; }
-
         /// <summary>
         /// Create a new dedicated thread-pool
         /// </summary>
-        public DedicatedThreadPoolPipeScheduler(string name = null, int workerCount = 5, int useThreadPoolQueueLength = 10,
-            ThreadPriority priority = ThreadPriority.Normal)
+        public DedicatedThreadPoolPipeScheduler(string name = null, int workerCount = 5, int useThreadPoolQueueLength = 10, ThreadPriority priority = ThreadPriority.Normal)
         {
             if (workerCount < 0) Throw.ArgumentNull(nameof(workerCount));
-
-            do { Id = Interlocked.Increment(ref s_nextWorkerPoolId); }
+            do { 
+                Id = Interlocked.Increment(ref s_nextWorkerPoolId); 
+            }
             while (Id == 0); // in case of roll-around; unlikely, though
-
             WorkerCount = workerCount;
             UseThreadPoolQueueLength = useThreadPoolQueueLength;
             if (string.IsNullOrWhiteSpace(name)) name = GetType().Name;
@@ -74,19 +69,15 @@ namespace Pipelines.Sockets.Unofficial
                 StartWorker(i);
             }
         }
-
         private long _totalServicedByQueue, _totalServicedByPool;
-
         /// <summary>
         /// The total number of operations serviced by the queue
         /// </summary>
         public long TotalServicedByQueue => Volatile.Read(ref _totalServicedByQueue);
-
         /// <summary>
         /// The total number of operations that could not be serviced by the queue, but which were sent to the thread-pool instead
         /// </summary>
         public long TotalServicedByPool => Volatile.Read(ref _totalServicedByPool);
-
         private readonly struct WorkItem
         {
             public readonly Action<object> Action;
@@ -97,9 +88,7 @@ namespace Pipelines.Sockets.Unofficial
                 State = state;
             }
         }
-
         private volatile bool _disposed;
-
         private readonly Queue<WorkItem> _queue = new Queue<WorkItem>();
         private void StartWorker(int id)
         {
@@ -112,34 +101,7 @@ namespace Pipelines.Sockets.Unofficial
             thread.Start(this);
             Helpers.Incr(Counter.ThreadPoolWorkerStarted);
         }
-
-        /// <summary>
-        /// Requests <paramref name="action"/> to be run on scheduler with <paramref name="state"/> being passed in
-        /// </summary>
-        public override void Schedule(Action<object> action, object state)
-        {
-            if (action == null) return; // nothing to do
-            lock (_queue)
-            {
-#pragma warning disable RCS1233
-                if (!(_disposed | _queue.Count >= UseThreadPoolQueueLength))
-#pragma warning restore RCS1233
-                {
-                    _queue.Enqueue(new WorkItem(action, state));
-                    if (_availableCount != 0)
-                    {
-                        Monitor.Pulse(_queue); // wake up someone
-                    }
-                    Helpers.Incr(Counter.ThreadPoolScheduled);
-                    return;
-                }
-            }
-
-            // fallback to thread-pool
-            Helpers.Incr(Counter.ThreadPoolPushedToMainThreadPool);
-            ThreadPool.Schedule(action, state);
-        }
-
+       
         private static readonly ParameterizedThreadStart ThreadRunWorkLoop = state => ((DedicatedThreadPoolPipeScheduler)state).RunWorkLoop();
 
         private int _availableCount;
@@ -153,7 +115,7 @@ namespace Pipelines.Sockets.Unofficial
         {
             try
             {
-                action(state);
+                action(state);//最终调用
                 Helpers.Incr(Counter.ThreadPoolExecuted);
                 Helpers.Incr(action == SocketAwaitableEventArgs.InvokeStateAsAction ? ((Action)state).Method : action.Method);
             }
@@ -162,13 +124,35 @@ namespace Pipelines.Sockets.Unofficial
                 Helpers.DebugLog(Name, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Requests <paramref name="action"/> to be run on scheduler with <paramref name="state"/> being passed in
+        /// </summary>
+        public override void Schedule(Action<object> action, object state)
+        {
+            if (action == null) return; // nothing to do
+            lock (_queue)
+            {
+                if (!(_disposed | _queue.Count >= UseThreadPoolQueueLength))
+                {
+                    _queue.Enqueue(new WorkItem(action, state));
+                    if (_availableCount != 0)
+                    {
+                        Monitor.Pulse(_queue); // wake up someone
+                    }
+                    Helpers.Incr(Counter.ThreadPoolScheduled);
+                    return;
+                }
+            }
+            // fallback to thread-pool
+            Helpers.Incr(Counter.ThreadPoolPushedToMainThreadPool);
+            ThreadPool.Schedule(action, state);
+        }
         private void RunWorkLoop()
         {
             s_threadWorkerPoolId = Id;
             try
             {
-                while (true)
+                while (true)//循环
                 {
                     WorkItem next;
                     lock (_queue)
@@ -180,7 +164,7 @@ namespace Pipelines.Sockets.Unofficial
                             Monitor.Wait(_queue);
                             _availableCount--;
                         }
-                        next = _queue.Dequeue();
+                        next = _queue.Dequeue();//从队列取
                     }
                     Interlocked.Increment(ref _totalServicedByQueue);
                     Execute(next.Action, next.State);
