@@ -12,6 +12,7 @@
     <Copyright>Marc Gravell 2018</Copyright>
     <LangVersion>latest</LangVersion>
     <NoWarn>IDE0068</NoWarn>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

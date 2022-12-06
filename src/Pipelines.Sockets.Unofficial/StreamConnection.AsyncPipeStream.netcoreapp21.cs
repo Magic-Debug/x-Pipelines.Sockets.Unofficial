@@ -1,8 +1,6 @@
 ﻿#if SOCKET_STREAM_BUFFERS
 using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,7 +41,7 @@ namespace Pipelines.Sockets.Unofficial
                 // slow way, then
                 var arr = ArrayPool<byte>.Shared.Rent(buffer.Length);
                 int bytes = Read(new Memory<byte>(arr, 0, buffer.Length));
-                if(bytes != 0)
+                if (bytes != 0)
                 {
                     new Span<byte>(arr, 0, bytes).CopyTo(buffer);
                 }

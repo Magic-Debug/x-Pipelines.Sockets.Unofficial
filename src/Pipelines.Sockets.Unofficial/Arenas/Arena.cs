@@ -247,7 +247,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
     internal sealed class PaddedBlittableOwnedArena<T> : MappedBlittableOwnedArena<byte, T>
         where T : unmanaged
     {
-        public PaddedBlittableOwnedArena(Arena parent) : base(parent) {}
+        public PaddedBlittableOwnedArena(Arena parent) : base(parent) { }
         public override Sequence<T> Allocate(int length)
         {
             // we need to think about padding/alignment; to allow proper
@@ -449,11 +449,11 @@ namespace Pipelines.Sockets.Unofficial.Arenas
                         // if we aren't using padded blittables; can we use a non-padded approach instead?
                         if (!Options.HasFlag(ArenaFlags.BlittablePaddedSharing) && Options.HasFlag(ArenaFlags.BlittableNonPaddedSharing))
                         {
-                            if(_blittableBySize.TryGetValue(Unsafe.SizeOf<T>(), out var existing))
+                            if (_blittableBySize.TryGetValue(Unsafe.SizeOf<T>(), out var existing))
                             {
                                 // one already exists for that size, yay!
                                 return (OwnedArena<T>)Activator.CreateInstance(
-                                    typeof(NonPaddedBlittableOwnedArena<int,uint>).GetGenericTypeDefinition()
+                                    typeof(NonPaddedBlittableOwnedArena<int, uint>).GetGenericTypeDefinition()
                                         .MakeGenericType(existing.ElementType, typeof(T)),
                                     args: new object[] { this });
                             }

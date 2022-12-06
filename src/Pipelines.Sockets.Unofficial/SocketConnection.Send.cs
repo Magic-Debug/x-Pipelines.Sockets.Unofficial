@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -26,25 +27,25 @@ namespace Pipelines.Sockets.Unofficial
         private async Task DoSendAsync()
         {
             Exception error = null;
-            DebugLog("starting send loop");
+            DebugLog($"开始发送 [DoSendAsync] send loop");
             try
             {
                 while (true)
                 {
                     DebugLog("awaiting data from pipe...");
-                    if(_sendToSocket.Reader.TryRead(out var result))
+                    if (_sendToSocket.Reader.TryRead(out ReadResult result))
                     {
                         Helpers.Incr(Counter.SocketPipeReadReadSync);
                     }
                     else
                     {
                         Helpers.Incr(Counter.OpenSendReadAsync);
-                        var read = _sendToSocket.Reader.ReadAsync();
+                        ValueTask<ReadResult> read = _sendToSocket.Reader.ReadAsync();
                         Helpers.Incr(read.IsCompleted ? Counter.SocketPipeReadReadSync : Counter.SocketPipeReadReadAsync);
                         result = await read;
                         Helpers.Decr(Counter.OpenSendReadAsync);
                     }
-                    var buffer = result.Buffer;
+                    ReadOnlySequence<byte> buffer = result.Buffer;
 
                     if (result.IsCanceled || (result.IsCompleted && buffer.IsEmpty))
                     {

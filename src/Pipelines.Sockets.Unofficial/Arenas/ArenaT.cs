@@ -208,7 +208,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
             // (this would self-correct later, if another segment got added, but if .End
             // is read *before* a new segment got added, it would never match
             // .Start; so... take a punt and extend it now)
-            if(length > 0 & length <= RemainingCurrentBlock)
+            if (length > 0 & length <= RemainingCurrentBlock)
             {
                 var offset = _allocatedCurrentBlock;
                 _allocatedCurrentBlock += length;

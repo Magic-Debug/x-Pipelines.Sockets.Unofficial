@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +52,7 @@ namespace Pipelines.Sockets.Unofficial.Threading
                 do
                 {
                     wait.SpinOnce();
-                    if(Pending.HasResult(_key)) return true;
+                    if (Pending.HasResult(_key)) return true;
                 } while (!wait.NextSpinWillYield);
                 return false;
             }

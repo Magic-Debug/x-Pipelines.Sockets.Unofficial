@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks.Sources;
 
@@ -107,7 +106,7 @@ namespace Pipelines.Sockets.Unofficial.Threading
             internal static string ToString(int token)
             {
                 var id = ((uint)token) >> 2;
-                switch(GetState(token))
+                switch (GetState(token))
                 {
                     case Timeout:
                         var reason = (LockToken.TimeoutReason)id;

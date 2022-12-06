@@ -125,6 +125,6 @@ namespace Pipelines.Sockets.Unofficial.Arenas
         /// <summary>
         /// Convert a reference to the underlying type
         /// </summary>
-        public static implicit operator T (in Reference<T> reference) => reference.Value;
+        public static implicit operator T(in Reference<T> reference) => reference.Value;
     }
 }

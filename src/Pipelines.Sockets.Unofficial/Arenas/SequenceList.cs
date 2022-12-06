@@ -16,7 +16,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
         private static readonly SequenceList<T> s_empty = new SequenceList<T>(default);
 
         internal static SequenceList<T> Create(in Sequence<T> sequence)
-            => sequence.IsEmpty ? s_empty: new SequenceList<T>(sequence);
+            => sequence.IsEmpty ? s_empty : new SequenceList<T>(sequence);
 
         private readonly Sequence<T> _sequence;
 

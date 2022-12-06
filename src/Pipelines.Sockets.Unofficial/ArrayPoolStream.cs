@@ -71,7 +71,7 @@
 //            get => _position;
 //            set
 //            {
-                
+
 //                if (value != _position)
 //                {
 //                    if (_position < 0 || _position > _length) Throw.ArgumentOutOfRange(nameof(Position));

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Pipelines.Sockets.Unofficial.Internal;
+using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using Pipelines.Sockets.Unofficial.Internal;
 
 namespace Pipelines.Sockets.Unofficial.Arenas
 {
@@ -122,7 +121,11 @@ namespace Pipelines.Sockets.Unofficial.Arenas
                 if (_ptr != null)
                 {
                     _ptr = null;
-                    try { _pin.Free(); } catch { } // best efforst
+                    try
+                    {
+                        _pin.Free();
+                    }
+                    catch { } // best efforst
                     _pin = default;
                 }
                 if (disposing)
@@ -215,7 +218,8 @@ namespace Pipelines.Sockets.Unofficial.Arenas
                 var ptr = _ptr;
                 _ptr = null;
                 if (ptr != null) Marshal.FreeHGlobal(new IntPtr(ptr));
-                if (disposing) GC.SuppressFinalize(this);
+                if (disposing) 
+                    GC.SuppressFinalize(this);
             }
         }
     }

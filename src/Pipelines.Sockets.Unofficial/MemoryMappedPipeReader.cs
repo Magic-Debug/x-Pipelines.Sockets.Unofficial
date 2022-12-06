@@ -196,7 +196,7 @@ namespace Pipelines.Sockets.Unofficial
         private static long CountAvailable(MappedPage page)
         {
             long total = 0;
-            while(page != null)
+            while (page != null)
             {
                 total += page.Capacity - page.Consumed;
                 page = page.Next;

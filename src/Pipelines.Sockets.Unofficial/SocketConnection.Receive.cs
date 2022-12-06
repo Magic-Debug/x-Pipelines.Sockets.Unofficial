@@ -29,7 +29,7 @@ namespace Pipelines.Sockets.Unofficial
         private async Task DoReceiveAsync()
         {
             Exception error = null;
-            DebugLog("starting receive loop");
+            DebugLog("开始接收 [DoReceiveAsync] receive loop");
             try
             {
                 _readerArgs = new SocketAwaitableEventArgs(InlineReads ? null : _receiveOptions.WriterScheduler);
@@ -216,9 +216,12 @@ namespace Pipelines.Sockets.Unofficial
                 args.SetBuffer(segment.Array, segment.Offset, segment.Count);
             }
 #endif
-            Helpers.DebugLog(name, $"## {nameof(socket.ReceiveAsync)} <={buffer.Length}");
+            Helpers.DebugLog(name, $"## Socket-> {nameof(socket.ReceiveAsync)} <={buffer.Length}");
 
-            if (!socket.ReceiveAsync(args)) args.Complete();
+            if (!socket.ReceiveAsync(args))
+            {
+                args.Complete();
+            }
         }
     }
 }

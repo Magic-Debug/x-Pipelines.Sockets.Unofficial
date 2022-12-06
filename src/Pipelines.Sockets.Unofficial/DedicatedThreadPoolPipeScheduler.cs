@@ -55,8 +55,9 @@ namespace Pipelines.Sockets.Unofficial
         public DedicatedThreadPoolPipeScheduler(string name = null, int workerCount = 5, int useThreadPoolQueueLength = 10, ThreadPriority priority = ThreadPriority.Normal)
         {
             if (workerCount < 0) Throw.ArgumentNull(nameof(workerCount));
-            do { 
-                Id = Interlocked.Increment(ref s_nextWorkerPoolId); 
+            do
+            {
+                Id = Interlocked.Increment(ref s_nextWorkerPoolId);
             }
             while (Id == 0); // in case of roll-around; unlikely, though
             WorkerCount = workerCount;
@@ -101,7 +102,7 @@ namespace Pipelines.Sockets.Unofficial
             thread.Start(this);
             Helpers.Incr(Counter.ThreadPoolWorkerStarted);
         }
-       
+
         private static readonly ParameterizedThreadStart ThreadRunWorkLoop = state => ((DedicatedThreadPoolPipeScheduler)state).RunWorkLoop();
 
         private int _availableCount;

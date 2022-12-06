@@ -12,7 +12,8 @@ namespace Pipelines.Sockets.Unofficial.Arenas
     /// <summary>
     /// Represents a Sequence without needing to know the type at compile-time
     /// </summary>
-    public readonly struct Sequence : IEquatable<Sequence>
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2, Size = 4)]
+    public readonly  unsafe struct Sequence : IEquatable<Sequence>
     {
         // the meaning of the fields here is identical to with Sequence<T>,
         // with the distinction that in the single-segment scenario,

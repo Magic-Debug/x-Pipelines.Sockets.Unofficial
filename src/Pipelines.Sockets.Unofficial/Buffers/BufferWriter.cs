@@ -13,7 +13,8 @@ namespace Pipelines.Sockets.Unofficial.Buffers
     /// <summary>
     /// Represents a <typeparamref name="T"/> with lifetime management over the data
     /// </summary>
-    public readonly struct Owned<T> : IDisposable
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi,Pack =2,Size =4)] //将对象导出到非托管代码时，控制该非托管对象的内存布局
+    public unsafe readonly struct Owned<T> : IDisposable
     {
         private readonly Action<T> _onDispose;
         private readonly T _value;
@@ -177,7 +178,7 @@ namespace Pipelines.Sockets.Unofficial.Buffers
             else if (value.IsEmpty) return default; // "all of nothing"
             var end = value.End;
 
-            _head = (RefCountedSegment) end.GetObject();
+            _head = (RefCountedSegment)end.GetObject();
             _headOffset = end.GetInteger();
             // we have some capacity left in the head; we'll keep that one, so:
             // increment the tail and continue from there
@@ -221,7 +222,7 @@ namespace Pipelines.Sockets.Unofficial.Buffers
             var sb = new StringBuilder();
             sb.Append($"[{_head.RunningIndex + _headOffset},{_tail.RunningIndex + _tailOffset}) - {_tailRemaining}/{(_final.RunningIndex + _final.Length) - (_tail.RunningIndex + _tailOffset)} available; counts: ");
             var node = _head;
-            while(node != null)
+            while (node != null)
             {
                 sb.Append(node.RefCount).Append('/');
                 node = (RefCountedSegment)node.Next;
@@ -418,7 +419,7 @@ namespace Pipelines.Sockets.Unofficial.Buffers
                 var owner = _memoryPool.Rent(BlockSize);
                 return new MemoryPoolRefCountedSegment(owner, previous);
             }
-                
+
 
             public MemoryPoolBufferWriter(MemoryPool<T> memoryPool, int blockSize)
                 : base(Math.Min(memoryPool.MaxBufferSize, blockSize))

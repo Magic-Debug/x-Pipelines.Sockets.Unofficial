@@ -520,7 +520,7 @@ namespace Pipelines.Sockets.Unofficial.Threading
                 if (cancellationToken.CanBeCanceled)
                 {
                     // register for cancelation
-                    cancellationToken.Register(GetCancelationCallback(key), asyncItem);   
+                    cancellationToken.Register(GetCancelationCallback(key), asyncItem);
                 }
 
                 // technically, Register can cause completion; this is an extreme outlier, but

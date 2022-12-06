@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Pipelines;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -83,20 +85,20 @@ namespace Pipelines.Sockets.Unofficial
         internal static void ResetCounters()
         {
             Array.Clear(_counters, 0, _counters.Length);
-            lock(_execCount) { _execCount.Clear(); }
+            lock (_execCount) { _execCount.Clear(); }
         }
         internal static string GetCounterSummary()
         {
             var enums = (Counter[])Enum.GetValues(typeof(Counter));
             var sb = new System.Text.StringBuilder();
-            for(int i = 0 ; i < enums.Length ; i++)
+            for (int i = 0; i < enums.Length; i++)
             {
                 var count = Thread.VolatileRead(ref _counters[(int)enums[i]]);
                 if (count != 0) sb.Append(enums[i]).Append(":\t").Append(count).AppendLine();
             }
-            lock(_execCount)
+            lock (_execCount)
             {
-                foreach(var pair in _execCount)
+                foreach (var pair in _execCount)
                 {
                     sb.Append(pair.Key).Append(":\t").Append(pair.Value).AppendLine();
                 }
@@ -129,7 +131,7 @@ namespace Pipelines.Sockets.Unofficial
 #pragma warning restore RCS1163 // Unused parameter.
         {
 #if DEBUG
-            lock(_execCount)
+            lock (_execCount)
             {
                 var name = $"{method.DeclaringType.FullName}.{method.Name}";
                 if (!_execCount.TryGetValue(name, out var count)) count = 0;
@@ -159,7 +161,7 @@ namespace Pipelines.Sockets.Unofficial
                     ExecutePipe(out var assembly);
                     if (assembly is not null) AddFailure(assembly);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {   // ExecutePipe exploded, but not in a way we expected
                     return ex.Message;
                 }
@@ -201,15 +203,15 @@ namespace Pipelines.Sockets.Unofficial
             assembly = null;
             try
             {
-                var pipe = new System.IO.Pipelines.Pipe();
+                Pipe pipe = new System.IO.Pipelines.Pipe();
                 pipe.Writer.GetSpan(4);
                 pipe.Writer.Advance(4);
                 pipe.Writer.Complete();
                 pipe.Reader.TryRead(out var _);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {   // look (non-greedy) for either 'System.Blah' or 'System.Blah,...
-                var match = Regex.Match(ex.Message, @"'(System\..*?)[,']");
+                Match match = Regex.Match(ex.Message, @"'(System\..*?)[,']");
                 if (match.Success)
                 {
                     assembly = match.Groups[1].Value;
@@ -232,7 +234,7 @@ namespace Pipelines.Sockets.Unofficial
         }
 
 #if DEBUG
-        internal static System.IO.TextWriter Log = System.IO.TextWriter.Null;
+        internal static TextWriter Log { get; set; } = new StreamWriter(Path.Combine(Environment.CurrentDirectory, "StackExchange.Redis.Helpers.log"));
 #endif
 
         [Conditional("VERBOSE")]
@@ -248,10 +250,13 @@ namespace Pipelines.Sockets.Unofficial
                 var threadName = thread.Name;
                 if (string.IsNullOrWhiteSpace(threadName)) threadName = thread.ManagedThreadId.ToString();
 
-                var s = $"[{threadName}, {name}, {caller}]: {message}";
+                var s = $"线程:[{threadName}, {name}, {caller}]: {message}";
                 lock (log)
                 {
-                    try { log.WriteLine(s); }
+                    try
+                    {
+                        log.WriteLine(s);
+                    }
                     catch { }
                 }
             }

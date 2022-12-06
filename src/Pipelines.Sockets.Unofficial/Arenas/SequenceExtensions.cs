@@ -73,7 +73,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
             private void Resize(int minimumCount)
             {
                 var newArr = ArrayPool<T>.Shared.Rent(minimumCount);
-                if(!Result.IsEmpty)
+                if (!Result.IsEmpty)
                 {
                     Result.CopyTo(newArr);
                     Recycle();
@@ -125,7 +125,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
 
             internal void Add(in T current)
             {
-                if(_offset == Result.Length)
+                if (_offset == Result.Length)
                 {
                     Resize(_offset * 2);
                 }
@@ -291,7 +291,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
             else
             {
                 int offset = 0;
-                foreach(var span in source.Spans)
+                foreach (var span in source.Spans)
                 {
                     for (int i = 0; i < span.Length; i++)
                     {
@@ -353,7 +353,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
             else
             {
                 var iter = destination.Spans.GetEnumerator();
-                while(!source.IsEmpty)
+                while (!source.IsEmpty)
                 {
                     var span = iter.GetNext();
                     source.Slice(0, span.Length).CopyTo(span);
@@ -591,7 +591,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
             while (from.MoveNext())
             {
                 var span = from.Current.Span;
-                for(int i = 0; i < span.Length;i++)
+                for (int i = 0; i < span.Length; i++)
                 {
                     to.GetNext() = span[i];
                 }
@@ -622,7 +622,7 @@ namespace Pipelines.Sockets.Unofficial.Arenas
         {
             var from = source.GetEnumerator();
             var to = destination.GetEnumerator();
-            while(from.MoveNext())
+            while (from.MoveNext())
             {
                 to.GetNext() = projection(from.Current);
             }
